@@ -3,7 +3,8 @@ import torch
 def generation_of_random_training_data(N: int, 
                                        alpha: float, 
                                        beta: float,
-                                       T: float): 
+                                       T: float) -> tuple[torch.Tensor, torch.Tensor,
+                                                          torch.Tensor]: 
 
     r""" Generation of the training data, where the collocation points are 
     chosen randomly in the space-time domain \overline{\Omega} \times [0,T], 

@@ -8,7 +8,7 @@ def ppp_loss(device: str,
              func_a: Callable[[torch.Tensor], torch.Tensor],
              func_c: Callable[[torch.Tensor], torch.Tensor],
              func_f: Callable[[torch.Tensor], torch.Tensor],
-             xt_points_ppp: torch.Tensor):
+             xt_points_ppp: torch.Tensor) -> torch.Tensor:
 
     r""" 'Phyiscal' loss function based on the pseudo-parabolic equation. Given the approximation 
     u_{nn} of the network, we define
