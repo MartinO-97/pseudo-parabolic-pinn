@@ -11,7 +11,8 @@ def ppp_loss(device: str,
              func_f: Callable[[torch.Tensor], torch.Tensor],
              alpha: float,
              beta: float, 
-             T: float):
+             T: float, 
+             xt_points_ppp: torch.Tensor):
 
     r""" 'Phyiscal' loss function based on the pseudo-parabolic equation. Given the approximation 
     u_{nn} of the network, we define
@@ -33,6 +34,7 @@ def ppp_loss(device: str,
         alpha (float): The start of the spatial interval
         beta (float): The end of the spatial interval
         T: The final time T
+        xt_points_ppp (torch.Tensor): The training data
 
     Returns:
         torch.Tensor: The computed loss Loss_{ppp}
