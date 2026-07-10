@@ -6,7 +6,7 @@ from typing import Callable
 def boundary_loss(func_Psi: Callable[[torch.Tensor], torch.Tensor],
                   device: str, 
                   xt_points_boundary: torch.Tensor,
-                  pinn_network: PinnNetwork):
+                  pinn_network: PinnNetwork) -> torch.Tensor:
 
     r""" The loss function for the initial condition. To be 
     more precise, let u_{nn} be the prediction of the model.
