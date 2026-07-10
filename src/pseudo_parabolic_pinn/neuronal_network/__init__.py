@@ -1,3 +1,4 @@
 from .pinn_network import PinnNetwork
 from .ppp_loss import ppp_loss
+from .initial_loss import intial_loss
 from .generation_of_random_training_data import generation_of_random_training_data
