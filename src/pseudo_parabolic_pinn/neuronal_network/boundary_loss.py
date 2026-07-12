@@ -36,6 +36,6 @@ def boundary_loss(func_Psi: Callable[[torch.Tensor], torch.Tensor],
     # Compute loss
     loss_fn = nn.MSELoss()
 
-    loss_boundary = loss_fn(func_Psi(xt_points), u_nn)
+    loss_boundary = loss_fn(func_Psi(xt_points).to(device=device), u_nn)
 
     return loss_boundary
