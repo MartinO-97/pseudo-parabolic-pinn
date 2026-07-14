@@ -219,3 +219,7 @@ __marimo__/
 
 # Own Python files
 test.py
+
+# png and jpg files
+.png
+.jpg
