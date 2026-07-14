@@ -70,7 +70,7 @@ def main(number_hidden_layers: int,
         loss_ppp = ppp_loss(device, pinn_network, func_a, func_c, func_f, xt_points_ppp)
         loss_init = intial_loss(func_u0, device, xt_points_init, pinn_network)
         loss_boundary = boundary_loss(func_Psi, device, xt_points_boundary, pinn_network)
-        loss_complete = loss_ppp + 100*loss_init + 100*loss_boundary
+        loss_complete = loss_ppp + loss_init + loss_boundary
 
         list_loss_ppp.append(loss_ppp.item())
         list_loss_init.append(loss_init.item())
