@@ -4,3 +4,4 @@ from .initial_loss import intial_loss
 from .boundary_loss import boundary_loss
 from .generation_of_random_training_data import generation_of_random_training_data
 from .random_weight_factorization import RandomWeightFactorization
+from .segemental_ppp_loss import segemental_ppp_loss
