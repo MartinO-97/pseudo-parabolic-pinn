@@ -67,4 +67,4 @@ def update_loss_weights(loss_ppp: torch.Tensor,
     lambda_init = alpha * lambda_init + (1-alpha) * aux_lambda_init
     lambda_boundary = alpha * lambda_boundary + (1-alpha) * aux_lambda_boundary
 
-    return 0.0, 0.0, 0.0
+    return lambda_ppp, lambda_init, lambda_boundary
