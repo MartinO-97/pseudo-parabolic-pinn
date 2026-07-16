@@ -1,6 +1,6 @@
 import torch 
 import torch.nn as nn
-from .pinn_network import PinnNetwork
+from ..pinn_network import PinnNetwork
 from typing import Callable
 
 def intial_loss(func_u0: Callable[[torch.Tensor], torch.Tensor],
