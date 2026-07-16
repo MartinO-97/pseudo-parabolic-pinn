@@ -25,7 +25,7 @@ class RandomWeightFactorization(nn.Module):
         self.s = nn.Parameter(torch.randn(number_rows)*sigma + mu)
 
         # Initialize matrix V
-        V_init = torch.exp(-self.s)[:,-1] * weight_matrix
+        V_init = torch.exp(-self.s)[:,None] * weight_matrix
         self.V = nn.Parameter(V_init)
 
     def forward(self) -> torch.Tensor:
@@ -36,4 +36,4 @@ class RandomWeightFactorization(nn.Module):
             torch.Tensor: The factorized weight matrix
         """
 
-        return torch.exp(self.s)[:,-1]*self.V
+        return torch.exp(self.s)[:,None]*self.V

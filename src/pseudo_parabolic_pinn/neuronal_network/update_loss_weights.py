@@ -42,17 +42,20 @@ def update_loss_weights(loss_ppp: torch.Tensor,
     # GRADIENT AND L^2 NORM FOR PHYSICAL LOSS FUNCTION
     optimizer.zero_grad()
     loss_ppp.backward(retain_graph=True) 
-    grad_norm_ppp = torch.sqrt(torch.sum(torch.tensor(p.grad.pow(2).sum() for p in parameters if p.grad is not None))).item()
+    grad_norm_ppp = \
+        torch.sqrt(torch.sum(torch.tensor([p.grad.pow(2).sum() for p in parameters if p.grad is not None]))).detach().item()
 
     # GRADIENT AND L^2 NORM FOR INITIAL LOSS FUNCTION
     optimizer.zero_grad()
     loss_init.backward(retain_graph=True)
-    grad_norm_init = torch.sqrt(torch.sum(torch.tensor(p.grad.pow(2).sum() for p in parameters if p.grad is not None))).item()
+    grad_norm_init = \
+        torch.sqrt(torch.sum(torch.tensor([p.grad.pow(2).sum() for p in parameters if p.grad is not None]))).detach().item()
 
     # GRADIENT AND L^2 NORM FOR BOUNDARY LOSS FUNCTION
     optimizer.zero_grad()
     loss_boundary.backward(retain_graph=True)
-    grad_norm_boundary = torch.sqrt(torch.sum(torch.tensor(p.grad.pow(2).sum() for p in parameters if p.grad is not None))).item()
+    grad_norm_boundary = \
+        torch.sqrt(torch.sum(torch.tensor([p.grad.pow(2).sum() for p in parameters if p.grad is not None]))).detach().item()
 
     # SUM OF ALL L^2 NORMS
     sum_norms = grad_norm_ppp + grad_norm_init + grad_norm_boundary
@@ -66,5 +69,5 @@ def update_loss_weights(loss_ppp: torch.Tensor,
     lambda_ppp = alpha * lambda_ppp + (1-alpha) * aux_lambda_ppp
     lambda_init = alpha * lambda_init + (1-alpha) * aux_lambda_init
     lambda_boundary = alpha * lambda_boundary + (1-alpha) * aux_lambda_boundary
-
+    
     return lambda_ppp, lambda_init, lambda_boundary

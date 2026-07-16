@@ -56,15 +56,17 @@ def segemental_ppp_loss(device: str,
     u_nn = pinn_network(xt_points)
 
     # Compute residual
-    du_nn_dx = torch.autograd.grad(u_nn, x_points, grad_outputs=torch.ones_like(u_nn), create_graph=True)[0]
-    du_nn_dt = torch.autograd.grad(u_nn, t_points, grad_outputs=torch.ones_like(u_nn), create_graph=True)[0]
-    du_nn_dxx = torch.autograd.grad(du_nn_dx, x_points, grad_outputs=torch.ones_like(du_nn_dx), create_graph=True)[0]
-    du_nn_dxxt = torch.autograd.grad(du_nn_dxx, t_points, grad_outputs=torch.ones_like(du_nn_dxx), create_graph = True)[0]
+    du_nn_dx = torch.autograd.grad(u_nn, x_points, grad_outputs=torch.ones_like(u_nn), create_graph=True, retain_graph=True)[0]
+    du_nn_dt = torch.autograd.grad(u_nn, t_points, grad_outputs=torch.ones_like(u_nn), create_graph=True, retain_graph=True)[0]
+    du_nn_dxx = torch.autograd.grad(du_nn_dx, x_points, grad_outputs=torch.ones_like(du_nn_dx), create_graph=True, retain_graph=True)[0]
+    du_nn_dxxt = torch.autograd.grad(du_nn_dxx, t_points, grad_outputs=torch.ones_like(du_nn_dxx), create_graph = True, retain_graph=True)[0]
 
-    F_nn = -du_nn_dxxt + func_a(x_points) * du_nn_dt \
-        - du_nn_dxx + func_c(x_points) * u_nn 
+    #F_nn = -du_nn_dxxt + func_a(x_points) * du_nn_dt \
+    #    - du_nn_dxx + func_c(x_points) * u_nn 
     
-    residual = torch.abs(func_f(xt_points)-F_nn)
+    F_nn = du_nn_dt - du_nn_dxx + func_a(x_points) * u_nn 
+    
+    residual = torch.abs(func_f(xt_points)-F_nn)**2
 
     # COMPUTE LOSS PER SEGEMENT
     # Number of points
@@ -81,7 +83,7 @@ def segemental_ppp_loss(device: str,
     segement_loss = torch.zeros(M, device=device)
     points_per_segment = torch.zeros(M, device=device)
 
-    segement_loss.scatter_add_(0, indices, residual)
+    segement_loss.scatter_add_(0, indices, residual.squeeze(-1))
     points_per_segment.scatter_add_(0, indices, torch.ones(N, device=device))
 
     points_per_segment = torch.clamp(points_per_segment, min=1.0)
@@ -89,13 +91,13 @@ def segemental_ppp_loss(device: str,
     loss_per_segment = segement_loss/points_per_segment
 
     # Compute loss
-    if len(w_weights.shape) == 2:
+    if len(w_weights.shape) != 2:
         raise ValueError("Weights must be of shape (M,1). Got different shape.")    
     
-    Loss_ppp = torch.mean(w_weights.squeeze(-1) * loss_per_segment)
+    Loss_ppp = torch.sum(w_weights.squeeze(-1) * loss_per_segment)/M
 
     # UPDATE WEIGHTS
-    w_weights = torch.cumsum(loss_per_segment, dim=0) - w_weights
+    w_weights = torch.cumsum(loss_per_segment.reshape(-1,1), dim=0) - loss_per_segment.reshape(-1,1)
     w_weights = torch.exp(-eps * w_weights)
 
-    return Loss_ppp, w_weights
+    return Loss_ppp, w_weights.detach()
