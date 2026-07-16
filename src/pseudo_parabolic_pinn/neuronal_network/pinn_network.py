@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from .rwf_linear import RWFLinear
 
 class PinnNetwork(nn.Module):
 
@@ -11,18 +12,31 @@ class PinnNetwork(nn.Module):
 
     def __init__(self, 
                  number_hidden_layers: int, 
-                 number_neurons: int):
+                 number_neurons_hidden_layers: int,
+                 bias: bool = True,
+                 use_rwf: bool = False,
+                 mean: float = 1.0,
+                 std: float = 0.1):
         
         """ Initialization of the PINN network with a dynamic number of hidden layers
         and neurons in the hidden layers.
         
         Args:
             number_hidden_layers (int): The number of hidden layers
-            number_neurons (int): The number of neurons per hidden layer. 
+            number_neurons_hidden_layers (int): The number of neurons per hidden layer.
+            bias (bool): If ``True`` a bias is used. Defaults to ``True``.
+            use_rwf (bool): Shall random weight factorization be used?
+                - Yes -> ``True``
+                - No -> ``False``
+            mean (float, optional): Mean of the normal distribution used to
+            initialize the RWF scaling parameters. Defaults to ``1.0``.
+            std (float, optional): Standard deviation of the normal
+            distribution used to initialize the RWF scaling parameters.
+            Defaults to ``0.1`` 
         """
 
         super(PinnNetwork, self).__init__()
-        
+
         # ASSEMBLE LAYERS
         layer_framework = []
 
@@ -30,19 +44,59 @@ class PinnNetwork(nn.Module):
         # Since we consider a pseudo-parabolic equation on \Omega x (0,T],
         # where \Omega is an interval, we need two neurons in the input 
         # layer
-        layer_framework.append(nn.Linear(2, number_neurons, bias=True))
+        layer_framework.append(self.create_linear_layer(2, number_neurons_hidden_layers, 
+                                                        bias, use_rwf, mean, std))
         layer_framework.append(nn.Tanh())        
 
         # Hidden Layers
         for _ in range(number_hidden_layers):
-            layer_framework.append(nn.Linear(number_neurons, number_neurons, bias=True))
+            layer_framework.append(self.create_linear_layer(number_neurons_hidden_layers,
+                                                            number_neurons_hidden_layers,
+                                                            bias, use_rwf, mean, std))
             layer_framework.append(nn.Tanh())
 
         # Output Layer
         # Since our solution u(x,t) maps to \RR, we need only one neuron in the output layer
-        layer_framework.append(nn.Linear(number_neurons, 1))
+        layer_framework.append(self.create_linear_layer(number_neurons_hidden_layers,
+                                                        1, bias, use_rwf, mean, std))
 
         self.pinn = nn.Sequential(*layer_framework)
+
+    @staticmethod
+    def create_linear_layer(in_features: int, 
+                            out_features: int,
+                            bias: bool = True,
+                            use_rwf: bool = False,
+                            mean: float = 1.0,
+                            std: float = 0.1) -> nn.Module:
+        
+        r""" Create a linear layer.
+
+        Args:
+            in_features (int): Number of input neurons
+            out_features (int): Number of output neurons
+            bias (bool): If ``True`` a bias is used. Defaults to ``True``.
+            use_rwf (bool): Shall random weight factorization be used?
+                - Yes -> ``True``
+                - No -> ``False``
+            mean (float, optional): Mean of the normal distribution used to
+            initialize the RWF scaling parameters. Defaults to ``1.0``.
+            std (float, optional): Standard deviation of the normal
+            distribution used to initialize the RWF scaling parameters.
+            Defaults to ``0.1``.
+
+        Returns:
+            nn.Module: Linear layer, optionally employing random
+            weight factorization 
+        """
+
+        if use_rwf:
+            layer = RWFLinear(in_features, out_features, bias, mean, std)
+        else:
+            layer = nn.Linear(in_features, out_features, bias)
+
+        return layer
+
 
     def forward(self, x_t: torch.Tensor) -> torch.Tensor:
 
