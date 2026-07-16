@@ -1,8 +1,9 @@
 from .pinn_network import PinnNetwork
-from .ppp_loss import ppp_loss
-from .initial_loss import intial_loss
-from .boundary_loss import boundary_loss
 from .generation_of_random_training_data import generation_of_random_training_data
 from .random_weight_factorization import RandomWeightFactorization
-from .segemental_ppp_loss import segemental_ppp_loss
 from .update_loss_weights import update_loss_weights
+
+from .loss_modules import (ppp_loss,
+                           segemental_ppp_loss,
+                           intial_loss,
+                           boundary_loss)

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from typing import Callable
-from .pinn_network import PinnNetwork
+from ..pinn_network import PinnNetwork
 
 def segemental_ppp_loss(device: str,
                         pinn_network: PinnNetwork,
