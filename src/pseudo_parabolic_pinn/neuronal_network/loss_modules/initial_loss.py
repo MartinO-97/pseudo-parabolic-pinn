@@ -4,7 +4,6 @@ from ..pinn_network import PinnNetwork
 from typing import Callable
 
 def intial_loss(func_u0: Callable[[torch.Tensor], torch.Tensor],
-                device: str, 
                 xt_points_init: torch.Tensor,
                 pinn_network: PinnNetwork) -> torch.Tensor:
 
@@ -25,8 +24,8 @@ def intial_loss(func_u0: Callable[[torch.Tensor], torch.Tensor],
     """
 
     # Extract training data
-    x_points = xt_points_init[:,0:1].to(device=device).clone()
-    t_points = xt_points_init[:,1:2].to(device=device).clone()
+    x_points = xt_points_init[:,0:1].clone()
+    t_points = xt_points_init[:,1:2].clone()
 
     xt_points = torch.cat((x_points, t_points), dim=1)
 

@@ -4,7 +4,6 @@ from ..pinn_network import PinnNetwork
 from typing import Callable
 
 def boundary_loss(func_Psi: Callable[[torch.Tensor], torch.Tensor],
-                  device: str, 
                   xt_points_boundary: torch.Tensor,
                   pinn_network: PinnNetwork) -> torch.Tensor:
 
@@ -16,7 +15,6 @@ def boundary_loss(func_Psi: Callable[[torch.Tensor], torch.Tensor],
 
     Args:
         func_Psi (Callable[[torch.Tensor], torch.Tensor]): The boundary condition
-        device (str): The device where tensores shall be stored. Can be either 'cpu' or 'cuda'
         xt_points_boundary (torch.Tensor): Training data
         pinn_network (PinnNetwork): The PINN network
 
@@ -25,8 +23,8 @@ def boundary_loss(func_Psi: Callable[[torch.Tensor], torch.Tensor],
     """
 
     # Extract training data
-    x_points = xt_points_boundary[:,0:1].to(device=device).clone()
-    t_points = xt_points_boundary[:,1:2].to(device=device).clone()
+    x_points = xt_points_boundary[:,0:1].clone()
+    t_points = xt_points_boundary[:,1:2].clone()
 
     xt_points = torch.cat((x_points, t_points), dim=1)
 
@@ -36,6 +34,6 @@ def boundary_loss(func_Psi: Callable[[torch.Tensor], torch.Tensor],
     # Compute loss
     loss_fn = nn.MSELoss()
 
-    loss_boundary = loss_fn(func_Psi(xt_points).to(device=device), u_nn)
+    loss_boundary = loss_fn(func_Psi(xt_points), u_nn)
 
     return loss_boundary
