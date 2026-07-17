@@ -3,9 +3,9 @@ from .generation_of_random_training_data import generation_of_random_training_da
 from .random_weight_factorization import RandomWeightFactorization
 from .update_loss_weights import update_loss_weights
 from .rwf_linear import RWFLinear
-from random_fourier_feature_embeddings import RFFEmbedding
+from .random_fourier_feature_embeddings import RFFEmbedding
 
-from .loss_modules import (ppp_loss,
-                           segemental_ppp_loss,
+from .loss_modules import (pde_loss,
+                           segemental_pde_loss,
                            intial_loss,
                            boundary_loss)
