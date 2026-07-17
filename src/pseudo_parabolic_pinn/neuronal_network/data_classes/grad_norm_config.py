@@ -26,3 +26,21 @@ class GradNormConfig():
     lambda_init_init: float = 1.0
     lambda_boundary_init: float = 1.0
     grad_norm_step_size: int = 1000
+
+    @property
+    def get_initial_lambdas(self) -> tuple[float, 
+                                           float, 
+                                           float]:
+    
+        r""" Returns the intial values of the loss weights
+        lambda_{pde}, lambda_{init} and lambda_{boundary}.
+        
+        Returns:
+            tuple[float, float, float]: Tuple consiting of:
+                - **float**: Initial value of lambda_{pde}
+                - **float**: Initial value of lambda_{init}
+                - **float**: Initial value of lambda_{boundary}
+        
+        """
+
+        return self.lambda_pde_init, self.lambda_init_init, self.lambda_boundary_init

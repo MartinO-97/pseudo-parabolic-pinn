@@ -13,6 +13,8 @@ class PinnTrainingConfig():
     Args:
         epochs (int): Number of epochs
         batch_size (int): Batch size
+        learn_rate (float): The learn rate for gradient descent.
+            Defaults to ``0.001``.
         ed_config (ExponentialDecayConfig): Config data for 
             exponential decay.
         gn_config (GradNormConfig): Config data for grad norm
@@ -26,6 +28,7 @@ class PinnTrainingConfig():
     """
     epochs: int = 10000
     batch_size: int = 4096
+    learn_rate: float = 0.001
 
     ed_config: ExponentialDecayConfig = field(default_factory=ExponentialDecayConfig)
     gn_config: GradNormConfig = field(default_factory=GradNormConfig)
