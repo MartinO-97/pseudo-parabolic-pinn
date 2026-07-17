@@ -1,8 +1,8 @@
-from typing import Callable
-
 import torch 
 import torch.nn as nn
 from .time_dependent_pde import TimeDependentPDE
+from typing import Callable
+from ..neuronal_network import PinnNetwork
 
 class PseudoParabolicPDE(TimeDependentPDE):
 
@@ -39,9 +39,9 @@ class PseudoParabolicPDE(TimeDependentPDE):
 
         super(PseudoParabolicPDE, self).__init__(F, u0, Psi, u)
 
-        self.a = a
-        self.c = c
-        self.u_x = u_x
+        self._a = a
+        self._c = c
+        self._u_x = u_x
 
     def func_a(self, 
                x_points: torch.Tensor) -> torch.Tensor:
@@ -56,7 +56,7 @@ class PseudoParabolicPDE(TimeDependentPDE):
             torch.Tensor: The function a evaluated at x_points.
         """
         
-        return self.a(x_points)
+        return self._a(x_points)
     
     def func_c(self, 
                x_points: torch.Tensor) -> torch.Tensor:
@@ -71,13 +71,13 @@ class PseudoParabolicPDE(TimeDependentPDE):
             torch.Tensor: The function c evaluated at x_points
         """
         
-        return self.a(x_points)
+        return self._c(x_points)
     
     def func_u_x(self,
                  xt_points) -> torch.Tensor | None:
 
         """ The first derivative of exact solution of the PDE with respect to
-        the time variable.
+        the spatial variable.
 
         Args:
             xt_points (torch.Tensor): The points in the space-time
@@ -91,7 +91,41 @@ class PseudoParabolicPDE(TimeDependentPDE):
                 xt_points. If no exact solution is known, ``None``
                 is returned. 
         """
-        if self.u_x is None:
+        if self._u_x is None:
             return None
         else:
-            return self.u_x(xt_points)
+            return self._u_x(xt_points)
+        
+    def nn_residual_operator(self,
+                             xt_points: torch.Tensor, 
+                             pinn_network: PinnNetwork) -> torch.Tensor:
+        
+        """ The residual of the PINN approximation u_{nn} in our
+        pseudo-parabolic PDE, i.e.:
+            -u_{nn}_xxt + au_{nn}_t - u_{nn}_xx + au_{nn} = F_{nn}.
+
+        Args: 
+            xt_points (torch.Tensor): Points in the space-time domain
+                where the residual shall be evaluated at.
+            pinn_network (PinnNetwork): The PINN which shall be trained
+        """
+
+        # Extract spatial and temporal points
+        x_points = xt_points[:,0:1].clone().requires_grad_(True)
+        t_points = xt_points[:,1:2].clone().requires_grad_(True)
+
+        xt_points = torch.cat((x_points, t_points), dim=1)
+
+        # Compute predicition of the model
+        u_nn = pinn_network(xt_points)
+
+        # Compute loss
+        du_nn_dx = torch.autograd.grad(u_nn, x_points, grad_outputs=torch.ones_like(u_nn), create_graph=True)[0]
+        du_nn_dt = torch.autograd.grad(u_nn, t_points, grad_outputs=torch.ones_like(u_nn), create_graph=True)[0]
+        du_nn_dxx = torch.autograd.grad(du_nn_dx, x_points, grad_outputs=torch.ones_like(du_nn_dx), create_graph=True)[0]
+        du_nn_dxxt = torch.autograd.grad(du_nn_dxx, t_points, grad_outputs=torch.ones_like(du_nn_dxx), create_graph = True)[0]
+
+        F_nn = -du_nn_dxxt + self.func_a(x_points) * du_nn_dt \
+            - du_nn_dxx + self.func_c(x_points) * u_nn
+        
+        return F_nn

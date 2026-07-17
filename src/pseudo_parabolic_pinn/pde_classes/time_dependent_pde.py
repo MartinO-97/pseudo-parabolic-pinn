@@ -27,10 +27,10 @@ class TimeDependentPDE():
             
         """
 
-        self.F = F
-        self.u0 = u0
-        self.Psi = Psi
-        self.u = u
+        self._F = F
+        self._u0 = u0
+        self._Psi = Psi
+        self._u = u
 
     def func_F(self,
                xt_points: torch.Tensor) -> torch.Tensor:
@@ -49,7 +49,7 @@ class TimeDependentPDE():
                 xt_points
         """
 
-        return self.F(xt_points)
+        return self._F(xt_points)
     
     def func_u0(self, 
                 x_points: torch.Tensor) -> torch.Tensor:
@@ -66,7 +66,7 @@ class TimeDependentPDE():
                 xt_points.
         """
         
-        return self.u0(x_points)
+        return self._u0(x_points)
     
     def func_Psi(self,
                  xt_points: torch.Tensor) -> torch.Tensor:
@@ -85,7 +85,7 @@ class TimeDependentPDE():
                 xt_points.
         """
         
-        return self.Psi(xt_points)
+        return self._Psi(xt_points)
     
     def func_u(self,
                xt_points) -> torch.Tensor | None:
@@ -103,10 +103,10 @@ class TimeDependentPDE():
                 xt_points. If no exact solution is known, ``None``
                 is returned. 
         """
-        if self.u is None:
+        if self._u is None:
             return None
         else:
-            return self.u(xt_points)
+            return self._u(xt_points)
 
     @property
     def exact_solution(self) -> bool:
@@ -117,12 +117,12 @@ class TimeDependentPDE():
             bool: Returns ``True`` if we have an exact solution, otherwise
                 ``False``.
         """
-        if self.u is None:
+        if self._u is None:
             return False
         else:
             return True
     
-    def func_F_nn(self):
+    def nn_residual_operator(self):
 
         """ The residual of the PINN approximation, i.e.:
             Ku_nn(x,t) =: F_nn(x,t). 
