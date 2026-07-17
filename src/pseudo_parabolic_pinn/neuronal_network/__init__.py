@@ -9,3 +9,11 @@ from .loss_modules import (pde_loss,
                            segemental_pde_loss,
                            intial_loss,
                            boundary_loss)
+
+from .data_classes import (ExponentialDecayConfig,
+                           GradNormConfig,
+                           PinnTrainingConfig,
+                           RandomFourierFeatureEmbeddingsConfig,
+                           RandomWeightFactorizationConfig,
+                           SegmentalPDELossConfig,
+                           TrainingHistoryData)
