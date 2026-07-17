@@ -1,13 +1,16 @@
 import torch
 from typing import Callable
+from ..neuronal_network import PinnNetwork
+from abc import ABC, abstractmethod
 
-
-class TimeDependentPDE():
+class TimeDependentPDE(ABC):
 
     def __init__(self,
                  F: Callable[[torch.Tensor], torch.Tensor],
                  u0: Callable[[torch.Tensor], torch.Tensor],
                  Psi: Callable[[torch.Tensor], torch.Tensor],
+                 T: float, 
+                 spatial_interval: list[float],
                  u: Callable[[torch.Tensor], torch.Tensor] | None = None) -> None:
         
         r""" Initialization of a time dependent PDE:
@@ -22,15 +25,22 @@ class TimeDependentPDE():
                 condition u0.
             Psi (Callable[[torch.Tensor], torch.Tensor]): The boundary
                 condition Psi.
+            T (float): The final time T.
+            spatial_interval (list[float]): The spatial interval.
             u (Callable[[torch.Tensor], torch.Tensor] | None): The exact
                 solution. Defaults to ``None``.
             
         """
 
+        if len(spatial_interval) !=2:
+            raise ValueError(f"""spatial_inteval must consist of two values but 
+                             got {len(spatial_interval)}!""")
         self._F = F
         self._u0 = u0
         self._Psi = Psi
         self._u = u
+        self._T = T
+        self._spatial_iterval = spatial_interval
 
     def func_F(self,
                xt_points: torch.Tensor) -> torch.Tensor:
@@ -121,11 +131,38 @@ class TimeDependentPDE():
             return False
         else:
             return True
-    
-    def nn_residual_operator(self):
+        
+    @property
+    def get_spatial_interval(self) -> list[float]:
 
-        """ The residual of the PINN approximation, i.e.:
-            Ku_nn(x,t) =: F_nn(x,t). 
+        r""" Returns the spatial interval as list of floats
+        
+        Returns:
+            list[float]: The spatial interval.
+            
         """
-        pass
+
+        return self._spatial_iterval
+    
+    @property
+    def get_final_time(self) -> float:
+        
+        r""" Returns the final time.
+        
+        Returns:
+            float: The final time
+        """
+
+        return self._T
+    
+    @abstractmethod
+    def pde_operator_to_nn(self,
+                             xt_points: torch.Tensor, 
+                             pinn_network: PinnNetwork) -> torch.Tensor:
+
+        """ The PDE operator K applied to the PINN approximation u_{nn}:
+            u_nn(x,t) =: F_nn(x,t). 
+        """
+        
+        raise NotImplementedError
 

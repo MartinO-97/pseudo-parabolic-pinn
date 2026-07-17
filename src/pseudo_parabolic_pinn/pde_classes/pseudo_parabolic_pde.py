@@ -12,6 +12,8 @@ class PseudoParabolicPDE(TimeDependentPDE):
                  Psi: Callable[[torch.Tensor], torch.Tensor],
                  a: Callable[[torch.Tensor], torch.Tensor],
                  c: Callable[[torch.Tensor], torch.Tensor],
+                 T: float, 
+                 spatial_interval: list[float],
                  u: Callable[[torch.Tensor], torch.Tensor] | None = None,
                  u_x: Callable[[torch.Tensor], torch.Tensor] | None = None) -> None:
 
@@ -37,7 +39,7 @@ class PseudoParabolicPDE(TimeDependentPDE):
                 spatial variable. Defaults to ``None``.  
         """
 
-        super(PseudoParabolicPDE, self).__init__(F, u0, Psi, u)
+        super(PseudoParabolicPDE, self).__init__(F, u0, Psi, T, spatial_interval, u)
 
         self._a = a
         self._c = c
@@ -96,12 +98,12 @@ class PseudoParabolicPDE(TimeDependentPDE):
         else:
             return self._u_x(xt_points)
         
-    def nn_residual_operator(self,
-                             xt_points: torch.Tensor, 
-                             pinn_network: PinnNetwork) -> torch.Tensor:
+    def pde_operator_to_nn(self,
+                           xt_points: torch.Tensor, 
+                           pinn_network: PinnNetwork) -> torch.Tensor:
         
-        """ The residual of the PINN approximation u_{nn} in our
-        pseudo-parabolic PDE, i.e.:
+        """ The pseudo-parabolic operator applied to the PINN approximation 
+        u_{nn}, i.e.:
             -u_{nn}_xxt + au_{nn}_t - u_{nn}_xx + au_{nn} = F_{nn}.
 
         Args: 
