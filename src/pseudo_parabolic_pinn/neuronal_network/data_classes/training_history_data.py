@@ -1,4 +1,7 @@
 from dataclasses import dataclass, field
+import matplotlib.pyplot as plt
+
+from matplotlib.figure import Figure
 
 @dataclass
 class TrainingHistoryData():
@@ -69,3 +72,32 @@ class TrainingHistoryData():
         self.list_validation_max_norm.append(max_norm)
         self.list_validation_l2_norm.append(l2_norm)
         self.list_validation_h1_norm.append(h1_norm)
+
+    def present_loss_graphs(self) -> Figure:
+
+        r""" Based on the stored losses graphs are generated that
+        illustrate the losses curves
+        
+        Returns:
+            Figure: Figure that iluustrates the loss curves.
+        
+        """
+        
+        # Determine number of epochs
+        epochs = len(self.list_complete_loss)
+
+        # Create figure
+        fig, ax = plt.subplots()
+
+        ax.plot([i for i in range(1,epochs+1)], self.list_complete_loss, label="complete")
+        ax.plot([i for i in range(1,epochs+1)], self.list_pde_loss, label="pde")
+        ax.plot([i for i in range(1,epochs+1)], self.list_boundary_loss, label="boundary")
+        ax.plot([i for i in range(1,epochs+1)], self.list_init_loss, label="initial")
+
+        ax.grid(visible=True, which="both")
+        ax.legend(loc="best")
+        ax.set_facecolor("lightgrey")
+        #ax.set_xscale("log")
+        ax.set_yscale("log")
+
+        return fig
