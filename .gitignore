@@ -221,5 +221,5 @@ __marimo__/
 test.py
 
 # png and jpg files
-.png
-.jpg
+*.png
+*.jpg
