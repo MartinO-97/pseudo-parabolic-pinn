@@ -58,8 +58,8 @@ class Quadrature(ABC):
 
         
     @staticmethod
-    def _interval_transformation(interval: tuple[float, float], 
-                                 x: torch.Tensor) -> torch.Tensor:
+    def interval_transformation(interval: tuple[float, float], 
+                                x: torch.Tensor) -> torch.Tensor:
         
         r""" Transformation of values in [-1,1] to a given interval.
         
@@ -97,7 +97,7 @@ class Quadrature(ABC):
             float: Approximation of the \int_{\alpha}^\beta y(x) dx.
         """
 
-        mapped_nodes = self._interval_transformation(interval, self.nodes)
+        mapped_nodes = self.interval_transformation(interval, self.nodes)
         alpha = interval[0]
         beta = interval[1]
         integral = torch.matmul(self.weights.T, func_y(mapped_nodes)).item()
