@@ -4,10 +4,31 @@ import numpy as np
 
 from pseudo_parabolic_pinn.numerical_utilities import LobattoQuadrature
 
-def test_lobatto_quadrature_order():
+@pytest.mark.parametrize("n, interval, k", [
+    # Tests for n=3 
+    (3, (-1.0, 1.0), 0),
+    (3, (-1.0, 1.0), 1),
+    (3, (-1.0, 1.0), 2),
+    (3, (-1.0, 1.0), 3),
+    # Tests for n=4
+    (4, (-2.0, 1.0), 0),
+    (4, (-2.0, 1.0), 1),
+    (4, (-2.0, 1.0), 2),
+    (4, (-2.0, 1.0), 3),
+    (4, (-2.0, 1.0), 4),
+    (4, (-2.0, 1.0), 5),
+])
+
+def test_lobatto_quadrature_order(n: int, interval: tuple[float, float], k: int) -> None:
 
     r""" Test if generated n nodes and weights integrate polynomials
-    up to order 2n-3 exactly. """
+    up to order 2n-3 exactly. 
+    
+    Args: 
+        n (int): Number of nodes and weights
+        interval (tuple[float, float]): Interval over which shall be ingerated
+        k (int): Grade of monom.
+    """
 
     def monom(k: int, x: torch.Tensor) -> torch.Tensor:
 
@@ -43,31 +64,17 @@ def test_lobatto_quadrature_order():
         a = interval[0]
         b = interval[1]
 
-        if k % 2 != 0:
-            return 0.0
-        else:
-            return 1/(k+1)*(b**(k+1)-a**(k+1))
+        return 1/(k+1)*(b**(k+1)-a**(k+1))
     
     # Device
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # Tests for Gauss-Lobatto with 3 nodes over [-1,1] 
-    n3 = 3
-    interval3 = -1.0, 1.0
-
-    lobatto3 = LobattoQuadrature(n3, device)
+    # Compute Lobatto nodes and weights
+    lobatto = LobattoQuadrature(n, device)
 
     # Tests
-    lobatto3_eval_0 = lobatto3.approximate_integral(lambda y: monom(0, y), interval3) 
-    assert np.isclose(lobatto3_eval_0, get_monom_integral(0, interval3))
+    approx_int = lobatto.approximate_integral(lambda y: monom(k, y), interval)
+    exact_int = get_monom_integral(k, interval)
 
-    lobatto3_eval_1 = lobatto3.approximate_integral(lambda y: monom(1, y), interval3) 
-    assert np.isclose(lobatto3_eval_1, get_monom_integral(1, interval3))
-
-    lobatto3_eval_2 = lobatto3.approximate_integral(lambda y: monom(2, y), interval3) 
-    assert np.isclose(lobatto3_eval_2, get_monom_integral(2, interval3))
-
-    lobatto3_eval_3 = lobatto3.approximate_integral(lambda y: monom(3, y), interval3) 
-    assert np.isclose(lobatto3_eval_3, get_monom_integral(3, interval3))
-
+    assert np.isclose(approx_int, exact_int)
 
