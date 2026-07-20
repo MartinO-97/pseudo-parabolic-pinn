@@ -10,8 +10,9 @@ class TimeDependentPDE(ABC):
                  u0: Callable[[torch.Tensor], torch.Tensor],
                  Psi: Callable[[torch.Tensor], torch.Tensor],
                  T: float, 
-                 spatial_interval: list[float],
-                 u: Callable[[torch.Tensor], torch.Tensor] | None = None) -> None:
+                 spatial_interval: tuple[float, float],
+                 u: Callable[[torch.Tensor], torch.Tensor] | None = None,
+                 u_x: Callable[[torch.Tensor], torch.Tensor] | None = None) -> None:
         
         r""" Initialization of a time dependent PDE:
             Ku(x,t) = F(x,t) on \Omega x (0,T].
@@ -26,9 +27,12 @@ class TimeDependentPDE(ABC):
             Psi (Callable[[torch.Tensor], torch.Tensor]): The boundary
                 condition Psi.
             T (float): The final time T.
-            spatial_interval (list[float]): The spatial interval.
+            spatial_interval (ltuple[float, float]): The spatial interval.
             u (Callable[[torch.Tensor], torch.Tensor] | None): The exact
                 solution. Defaults to ``None``.
+            u_x (Callable[[torch.Tensor], torch.Tensor] | None): The first derivative 
+                with respect to the spatial variable of the exact solution. Defaults 
+                to ``None``.
             
         """
 
@@ -39,6 +43,7 @@ class TimeDependentPDE(ABC):
         self._u0 = u0
         self._Psi = Psi
         self._u = u
+        self._u_x = u_x
         self._T = T
         self._spatial_iterval = spatial_interval
 
@@ -98,7 +103,7 @@ class TimeDependentPDE(ABC):
         return self._Psi(xt_points)
     
     def func_u(self,
-               xt_points) -> torch.Tensor | None:
+               xt_points: torch.Tensor) -> torch.Tensor | None:
 
         """ The exact solution of the PDE. 
         Args:
@@ -117,6 +122,27 @@ class TimeDependentPDE(ABC):
             return None
         else:
             return self._u(xt_points)
+        
+    def func_u_x(self,
+                 xt_points: torch.Tensor) -> torch.Tensor | None:
+
+        """ The first spatial derivaitve of the exact solution of the PDE. 
+        Args:
+            xt_points (torch.Tensor): The points in the space-time
+                domain where u shall be evaluated at. Must be of
+                shape (N,2), where the first column is associated
+                with the space variable and the second column with
+                the time variable.
+        
+        Returns:
+            torch.Tensor | None: The first derivative of the exact solution 
+            evaluated at xt_points. If no exact solution is known, ``None``
+                is returned. 
+        """
+        if self._u_x is None:
+            return None
+        else:
+            return self._u_x(xt_points)
 
     @property
     def exact_solution(self) -> bool:
@@ -133,19 +159,19 @@ class TimeDependentPDE(ABC):
             return True
         
     @property
-    def get_spatial_interval(self) -> list[float]:
+    def spatial_interval(self) -> tuple[float, float]:
 
         r""" Returns the spatial interval as list of floats
         
         Returns:
-            list[float]: The spatial interval.
+            tuple[float, float]: The spatial interval.
             
         """
 
         return self._spatial_iterval
     
     @property
-    def get_final_time(self) -> float:
+    def final_time(self) -> float:
         
         r""" Returns the final time.
         
