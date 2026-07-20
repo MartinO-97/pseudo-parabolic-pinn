@@ -13,7 +13,7 @@ class PseudoParabolicPDE(TimeDependentPDE):
                  a: Callable[[torch.Tensor], torch.Tensor],
                  c: Callable[[torch.Tensor], torch.Tensor],
                  T: float, 
-                 spatial_interval: list[float],
+                 spatial_interval: tuple[float, float],
                  u: Callable[[torch.Tensor], torch.Tensor] | None = None,
                  u_x: Callable[[torch.Tensor], torch.Tensor] | None = None) -> None:
 
