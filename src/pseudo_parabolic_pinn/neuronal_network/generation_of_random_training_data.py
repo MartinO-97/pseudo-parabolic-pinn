@@ -3,7 +3,8 @@ import torch
 def generation_of_random_training_data(N: int, 
                                        alpha: float, 
                                        beta: float,
-                                       T: float) -> tuple[torch.Tensor, torch.Tensor,
+                                       T: float,
+                                       device: str) -> tuple[torch.Tensor, torch.Tensor,
                                                           torch.Tensor]: 
 
     r""" Generation of the training data, where the collocation points are 
@@ -15,6 +16,7 @@ def generation_of_random_training_data(N: int,
         alpha (float): The start of the spatial interval
         beta (float): The end of the spatial interval
         T: The final time T
+        device (str): Device where tensors shall be stored
 
     Returns:
         Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing:
@@ -34,7 +36,7 @@ def generation_of_random_training_data(N: int,
     t_points = torch.rand((N+1)**2-(3*N-1),1)
     t_points = (1-t_points)*T
 
-    xt_points_ppp = torch.cat((x_points, t_points), dim=1)
+    xt_points_ppp = torch.cat((x_points, t_points), dim=1).to(device=device)
 
     # Generate training data for the initial condition
     # We ensure that the boundary values of \Omega are in the training data
@@ -44,7 +46,7 @@ def generation_of_random_training_data(N: int,
     x_points = torch.cat((torch.tensor([[alpha]]), x_points, torch.tensor([[beta]])), dim=0)
 
     t_points = torch.zeros(N+1,1)
-    xt_points_init = torch.cat((x_points, t_points), dim=1)
+    xt_points_init = torch.cat((x_points, t_points), dim=1).to(device=device)
 
     # Generate training data for the boundary conditions
     # Similar to the training data for the initial condition, we ensure that 
@@ -56,6 +58,6 @@ def generation_of_random_training_data(N: int,
     xt_points_alpha = torch.cat((alpha*torch.ones(N+1, 1), t_points), dim=1)
     xt_points_beta = torch.cat((beta*torch.ones(N+1, 1), t_points), dim=1)
 
-    xt_points_boundary = torch.cat((xt_points_alpha, xt_points_beta), dim=0)
+    xt_points_boundary = torch.cat((xt_points_alpha, xt_points_beta), dim=0).to(device=device)
 
     return xt_points_ppp, xt_points_init, xt_points_boundary
