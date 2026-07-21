@@ -112,11 +112,14 @@ class PseudoParabolicPDE(TimeDependentPDE):
             pinn_network (PinnNetwork): The PINN which shall be trained
         """
 
+        # device
+        device = xt_points.device
+
         # Extract spatial and temporal points
         x_points = xt_points[:,0:1].clone().requires_grad_(True)
         t_points = xt_points[:,1:2].clone().requires_grad_(True)
 
-        xt_points = torch.cat((x_points, t_points), dim=1)
+        xt_points = torch.cat((x_points, t_points), dim=1).to(device=device)
 
         # Compute predicition of the model
         u_nn = pinn_network(xt_points)
