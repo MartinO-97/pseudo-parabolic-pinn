@@ -124,7 +124,7 @@ class PinnEvaluation():
         r""" Computes the maximum norm error between the pinn approximation and 
         the exact solution. """
 
-        x_points = self._x_points.repeat((self._N+1, 1))
+        x_points = self._x_points.repeat((self._N+1)).unsqueeze(-1)
         t_points = self._t_points.repeat_interleave(self._N+1).unsqueeze(-1)
 
         xt_points = torch.cat((x_points, t_points), dim=1)
@@ -238,26 +238,26 @@ class PinnEvaluation():
             pinn_eval: torch.Tensor = self._pinn_network(xt_points)
             error = torch.abs(func_u_eval - pinn_eval)
 
-            x_points_cpu = x_points.cpu().numpy()
-            t_points_cpu = t_points.cpu().numpy()
+            x_points_cpu = x_points.cpu().numpy().reshape((self._N+1, self._N+1))
+            t_points_cpu = t_points.cpu().numpy().reshape((self._N+1, self._N+1))
 
-            ax_sol.plot_surface(x_points_cpu, t_points_cpu, func_u_eval.cpu().numpy().flatten(),       
+            ax_sol.plot_surface(x_points_cpu, t_points_cpu, func_u_eval.cpu().numpy().reshape((self._N+1, self._N+1)),       
                                 cmap='plasma', linewidth=0, antialiased=False)
             ax_sol.set_xlabel(r"$x$")
             ax_sol.set_ylabel(r"$t$")
             ax_sol.set_zlabel(r"$u(x,t)$")
 
-            ax_approx.plot_surface(x_points_cpu, t_points_cpu, pinn_eval.cpu().numpy().flatten(),       
+            ax_approx.plot_surface(x_points_cpu, t_points_cpu, pinn_eval.cpu().numpy().reshape((self._N+1, self._N+1)),       
                                    cmap='plasma', linewidth=0, antialiased=False)
-            ax_sol.set_xlabel(r"$x$")
-            ax_sol.set_ylabel(r"$t$")
-            ax_sol.set_zlabel(r"$u_{nn}(x,t)$")
+            ax_approx.set_xlabel(r"$x$")
+            ax_approx.set_ylabel(r"$t$")
+            ax_approx.set_zlabel(r"$u_{nn}(x,t)$")
 
-            ax_sol.plot_surface(x_points_cpu, t_points_cpu, error.cpu().numpy().flatten(),       
-                                cmap='plasma', linewidth=0, antialiased=False)
-            ax_sol.set_xlabel(r"$x$")
-            ax_sol.set_ylabel(r"$t$")
-            ax_sol.set_zlabel(r"$|(u-u_{nn})(x,t)|$")
+            ax_error.plot_surface(x_points_cpu, t_points_cpu, error.cpu().numpy().reshape((self._N+1, self._N+1)),       
+                                  cmap='plasma', linewidth=0, antialiased=False)
+            ax_error.set_xlabel(r"$x$")
+            ax_error.set_ylabel(r"$t$")
+            ax_error.set_zlabel(r"$|(u-u_{nn})(x,t)|$")
 
             return fig_sol, fig_approx, fig_error
             

@@ -3,12 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from torch import optim
-from ..neuronal_network import (PinnNetwork, intial_loss, boundary_loss, 
-                                generation_of_random_training_data, 
-                                segemental_pde_loss as pde_loss,
-                                TrainingHistoryData, 
-                                PinnTrainingConfig,
-                                update_loss_weights)
+from .pinn_network import PinnNetwork
+from .loss_modules import boundary_loss, segemental_pde_loss as pde_loss, intial_loss
+from .generation_of_random_training_data import generation_of_random_training_data
+from .data_classes import TrainingHistoryData, PinnTrainingConfig
+from .update_loss_weights import update_loss_weights
 from ..pde_classes import TimeDependentPDE
 
 
@@ -30,7 +29,7 @@ def pinn_training(pinn_network: PinnNetwork,
     """
 
     # CHOOSE DEVICE
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = pinn_training_config.device
 
     # COMPUTE N
     # N is the number of points on the x and t axes
@@ -55,8 +54,6 @@ def pinn_training(pinn_network: PinnNetwork,
     pinn_network.train()
 
     for epoch in range(1, pinn_training_config.epochs+1):
-        
-        print(epoch)
 
         optimizer.zero_grad()
 
@@ -64,7 +61,7 @@ def pinn_training(pinn_network: PinnNetwork,
         spatial_interval = pde_problem.spatial_interval
         T = pde_problem.final_time
         xt_points_ppp, xt_points_init, xt_points_boundary = \
-            generation_of_random_training_data(N, spatial_interval[0], spatial_interval[1], T)
+            generation_of_random_training_data(N, spatial_interval[0], spatial_interval[1], T, device)
         
         # Compute loss
         loss_pde, w_weights = pde_loss(pinn_network, pde_problem, xt_points_ppp, 
