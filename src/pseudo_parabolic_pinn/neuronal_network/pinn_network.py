@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from .rwf_linear import RWFLinear
 from .random_fourier_feature_embeddings import RFFEmbedding
+from .data_classes import PinnTrainingConfig
 
 class PinnNetwork(nn.Module):
 
@@ -14,13 +15,8 @@ class PinnNetwork(nn.Module):
     def __init__(self, 
                  number_hidden_layers: int, 
                  number_neurons_hidden_layers: int,
-                 bias: bool = True,
-                 use_rwf: bool = False,
-                 rwf_mean: float = 1.0,
-                 rwf_std: float = 0.1,
-                 spatial_embeddings: int = 0,
-                 temporal_embeddings: int = 0,
-                 rffe_std: float = 1.0) -> None:
+                 pinn_training_config: PinnTrainingConfig,
+                 bias: bool = True) -> None:
         
         """ Initialization of the PINN network with a dynamic number of hidden layers
         and neurons in the hidden layers.
@@ -28,30 +24,23 @@ class PinnNetwork(nn.Module):
         Args:
             number_hidden_layers (int): The number of hidden layers
             number_neurons_hidden_layers (int): The number of neurons per hidden layer.
-            bias (bool): If ``True`` a bias is used. Defaults to ``True``.
-            use_rwf (bool): Shall random weight factorization be used?
-                - Yes -> ``True``
-                - No -> ``False``
-            rwf_mean (float, optional): Mean of the normal distribution used to
-                initialize the RWF scaling parameters. Defaults to ``1.0``.
-            rwf_std (float, optional): Standard deviation of the normal
-                distribution used to initialize the RWF scaling parameters.
-                Defaults to ``0.1``
-            spatial_embeddings (int): Number of embeddings for 
-                the random Fourier feature embeddings for the spatial
-                variable. Defaults to ``0``.
-            temporal_embeddings (int): Number of embeddings for 
-                the random Fourier feature embeddings for the temporal
-                variable. Defaults to ``0``.
-            rffe_std (float): Standard deviation of the normal 
-                distribution employed to intialize the random Fourier
-                feature embedding class. Defaults to ``1.0``.
+            pinn_training_config (PinnTrainingConfig): Configuration data for training the
+                PINN.
         """
 
         super(PinnNetwork, self).__init__()
 
+
+        # EXTRACT RANDOM WEIGHT FACTORIZATION AND RANDOM FOURIER FEATURE EMBEDDING 
+        # CONFIGURATION DATA
+        rffe_config = pinn_training_config.rffe_config
+        rwf_config = pinn_training_config.rwf_config
+        use_rwf = rwf_config.use_rwf
+        rwf_mean = rwf_config.rwf_mean
+        rwf_std = rwf_config.rwf_std
+
         # INITIALIZE CLASS FOR RANDOM FOURIER FEATURE EMBEDDING
-        self.embedding = RFFEmbedding(spatial_embeddings, temporal_embeddings, rffe_std)
+        self.embedding = RFFEmbedding(rffe_config)
 
         # ASSEMBLE LAYERS
         layer_framework = []
