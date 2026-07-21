@@ -4,6 +4,8 @@ from .random_weight_factorization import RandomWeightFactorization
 from .update_loss_weights import update_loss_weights
 from .rwf_linear import RWFLinear
 from .random_fourier_feature_embeddings import RFFEmbedding
+from .pinn_training import pinn_training
+from .pinn_evaluation import PinnEvaluation
 
 from .loss_modules import (pde_loss,
                            segemental_pde_loss,
