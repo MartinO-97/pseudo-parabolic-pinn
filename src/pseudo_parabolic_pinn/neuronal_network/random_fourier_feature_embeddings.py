@@ -1,12 +1,11 @@
 import torch
 import torch.nn as nn
+from .data_classes import RandomFourierFeatureEmbeddingsConfig
 
 class RFFEmbedding(nn.Module):
 
     def __init__(self,
-                 spatial_embeddings: int,
-                 temporal_embeddings: int,
-                 rffe_std: float = 1.0) -> None:
+                 rffe_config: RandomFourierFeatureEmbeddingsConfig) -> None:
 
         r"""Initialization of the random Fourier feature embedding layer.
 
@@ -17,16 +16,16 @@ class RFFEmbedding(nn.Module):
         through unchanged.
 
         Args:
-            spatial_embeddings (int): Number of Fourier embeddings used for the
-                spatial coordinate. If ``0``, the spatial coordinate is not
-                encoded.
-            temporal_embeddings (int): Number of Fourier embeddings used for the
-                temporal coordinate. If ``0``, the temporal coordinate is not
-                encoded.
-            rffe_std (float, optional): Standard deviation of the Gaussian
-                distribution used to sample the random projection matrices.
-                Defaults to ``1.0``.
+            rffe_config (RandomFourierFeatureEmbeddingsConfig): Configuration data 
+                for random Fourier feature embedding.
         """
+
+        super(RFFEmbedding, self).__init__()
+
+        # Extract configuration data
+        spatial_embeddings = rffe_config.spatial_embeddings
+        temporal_embeddings = rffe_config.temporal_embeddings
+        rffe_std = rffe_config.rffe_std
 
         # Varify that embedding numbers are non-negative
         if spatial_embeddings < 0 or temporal_embeddings < 0:
@@ -34,7 +33,6 @@ class RFFEmbedding(nn.Module):
                              spatial_embeddings == {spatial_embeddings} and 
                              temporal_embeddings == {temporal_embeddings}. """)
 
-        super(RFFEmbedding, self).__init__()
 
         # Create spatial encoding matrix
         self.B_spatial: torch.Tensor | None
