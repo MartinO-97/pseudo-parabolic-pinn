@@ -51,7 +51,7 @@ def segemental_pde_loss(pinn_network: PinnNetwork,
     N = xt_points_ppp[:, 1:2].shape[0]
 
     # Determine segement length
-    tau = pde_problem.get_final_time / M   
+    tau = pde_problem.final_time / M   
 
     # Determine in which segement the points are 
     indices = torch.floor(xt_points_ppp[:, 1:2] * 1/tau).to(dtype=torch.int64)
