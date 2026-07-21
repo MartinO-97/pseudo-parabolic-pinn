@@ -26,10 +26,10 @@ class TrainingHistoryData():
             a validation data set.    
     """
     
-    list_complete_loss: list[float] = field(default_factory=list[float])
-    list_pde_loss: list[float] = field(default_factory=list[float])
-    list_init_loss: list[float] = field(default_factory=list[float])
-    list_boundary_loss: list[float] = field(default_factory=list[float])
+    complete_loss: list[float] = field(default_factory=list[float])
+    pde_loss: list[float] = field(default_factory=list[float])
+    init_loss: list[float] = field(default_factory=list[float])
+    boundary_loss: list[float] = field(default_factory=list[float])
 
     list_validation_max_norm: list[float] = field(default_factory=list[float])
     list_validation_l2_norm: list[float] = field(default_factory=list[float])
@@ -50,10 +50,10 @@ class TrainingHistoryData():
             boundary_loss (float): Current boundary loss.
         """
 
-        self.list_complete_loss.append(complete_loss)
-        self.list_pde_loss.append(pde_loss)
-        self.list_init_loss.append(init_loss)
-        self.list_boundary_loss.append(boundary_loss)
+        self.complete_loss.append(complete_loss)
+        self.pde_loss.append(pde_loss)
+        self.init_loss.append(init_loss)
+        self.boundary_loss.append(boundary_loss)
 
     def update_norms_lists(self,
                            max_norm: float,
@@ -73,6 +73,23 @@ class TrainingHistoryData():
         self.list_validation_l2_norm.append(l2_norm)
         self.list_validation_h1_norm.append(h1_norm)
 
+    @property
+    def loss_lists(self) -> tuple[list[float], list[float],
+                                  list[float], list[float]]:
+
+        r""" Returns lists of the different loss functions
+        
+        Returns:
+            tuple[list[float], list[float], list[float], list[float]]:
+                Tuple consisting of:
+                    - **list[float]**: The complete loss
+                    - **list[float]**: The phyiscal loss
+                    - **list[float]**: The intial loss
+                    - **list[float]**: The boundary loss
+        """
+
+        return self.complete_loss, self.pde_loss, self.init_loss, self.boundary_loss
+
     def present_loss_graphs(self) -> Figure:
 
         r""" Based on the stored losses graphs are generated that
@@ -84,15 +101,15 @@ class TrainingHistoryData():
         """
         
         # Determine number of epochs
-        epochs = len(self.list_complete_loss)
+        epochs = len(self.complete_loss)
 
         # Create figure
         fig, ax = plt.subplots()
 
-        ax.plot([i for i in range(1,epochs+1)], self.list_complete_loss, label="complete")
-        ax.plot([i for i in range(1,epochs+1)], self.list_pde_loss, label="pde")
-        ax.plot([i for i in range(1,epochs+1)], self.list_boundary_loss, label="boundary")
-        ax.plot([i for i in range(1,epochs+1)], self.list_init_loss, label="initial")
+        ax.plot([i for i in range(1,epochs+1)], self.complete_loss, label="complete")
+        ax.plot([i for i in range(1,epochs+1)], self.pde_loss, label="pde")
+        ax.plot([i for i in range(1,epochs+1)], self.boundary_loss, label="boundary")
+        ax.plot([i for i in range(1,epochs+1)], self.init_loss, label="initial")
 
         ax.grid(visible=True, which="both")
         ax.legend(loc="best")
