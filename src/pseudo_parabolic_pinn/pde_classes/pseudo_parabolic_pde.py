@@ -115,22 +115,21 @@ class PseudoParabolicPDE(TimeDependentPDE):
         # device
         device = xt_points.device
 
-        # Extract spatial and temporal points
-        x_points = xt_points[:,0:1].clone().requires_grad_(True)
-        t_points = xt_points[:,1:2].clone().requires_grad_(True)
-
-        xt_points = torch.cat((x_points, t_points), dim=1).to(device=device)
-
         # Compute predicition of the model
         u_nn = pinn_network(xt_points)
 
         # Compute loss
-        du_nn_dx = torch.autograd.grad(u_nn, x_points, grad_outputs=torch.ones_like(u_nn), create_graph=True)[0]
-        du_nn_dt = torch.autograd.grad(u_nn, t_points, grad_outputs=torch.ones_like(u_nn), create_graph=True)[0]
-        du_nn_dxx = torch.autograd.grad(du_nn_dx, x_points, grad_outputs=torch.ones_like(du_nn_dx), create_graph=True)[0]
-        du_nn_dxxt = torch.autograd.grad(du_nn_dxx, t_points, grad_outputs=torch.ones_like(du_nn_dxx), create_graph = True)[0]
+        grad_u_nn = torch.autograd.grad(u_nn, xt_points, grad_outputs=torch.ones_like(u_nn), create_graph=True)[0]
+        du_nn_dx = grad_u_nn[:, 0:1]
+        du_nn_dt = grad_u_nn[:, 1:2]
 
-        F_nn = -du_nn_dxxt + self.func_a(x_points) * du_nn_dt \
-            - du_nn_dxx + self.func_c(x_points) * u_nn
+        grad_du_nn_dx = torch.autograd.grad(du_nn_dx, xt_points, grad_outputs=torch.ones_like(du_nn_dx), create_graph=True)[0]
+        du_nn_dxx = grad_du_nn_dx[:, 0:1]
+
+        grad_du_nn_dxx = torch.autograd.grad(du_nn_dxx, xt_points, grad_outputs=torch.ones_like(du_nn_dxx), create_graph = True)[0]
+        du_nn_dxxt = grad_du_nn_dxx[:,1:2]
+
+        F_nn = -du_nn_dxxt + self.func_a(xt_points[:,0:1]) * du_nn_dt \
+            - du_nn_dxx + self.func_c(xt_points[:,0:1]) * u_nn
         
         return F_nn
