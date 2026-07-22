@@ -61,8 +61,8 @@ def segemental_pde_loss(pinn_network: PinnNetwork,
     segement_loss = torch.zeros(M, device=device)
     points_per_segment = torch.zeros(M, device=device)
 
-    segement_loss.scatter_add_(0, indices, residual.squeeze(-1))
-    points_per_segment.scatter_add_(0, indices, torch.ones(N, device=device))
+    segement_loss = segement_loss.scatter_add(0, indices, residual.squeeze(-1))
+    points_per_segment = points_per_segment.scatter_add(0, indices, torch.ones(N, device=device))
 
     points_per_segment = torch.clamp(points_per_segment, min=1.0)
 
