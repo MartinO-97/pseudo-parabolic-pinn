@@ -23,18 +23,12 @@ def intial_loss(func_u0: Callable[[torch.Tensor], torch.Tensor],
         loss_init (torch.Tensor): The computed loss Loss_{init}
     """
 
-    # Extract training data
-    x_points = xt_points_init[:,0:1].clone()
-    t_points = xt_points_init[:,1:2].clone()
-
-    xt_points = torch.cat((x_points, t_points), dim=1)
-
     # Compute predicition of the model
-    u_nn = pinn_network(xt_points)
+    u_nn = pinn_network(xt_points_init)
 
     # Compute loss
     loss_fn = nn.MSELoss()
 
-    loss_init = loss_fn(func_u0(x_points), u_nn)
+    loss_init = loss_fn(func_u0(xt_points_init[:,0:1]), u_nn)
 
     return loss_init

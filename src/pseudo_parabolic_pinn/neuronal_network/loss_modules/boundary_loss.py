@@ -22,18 +22,12 @@ def boundary_loss(func_Psi: Callable[[torch.Tensor], torch.Tensor],
         loss_init (torch.Tensor): The computed loss Loss_{init}
     """
 
-    # Extract training data
-    x_points = xt_points_boundary[:,0:1].clone()
-    t_points = xt_points_boundary[:,1:2].clone()
-
-    xt_points = torch.cat((x_points, t_points), dim=1)
-
     # Compute predicition of the model
-    u_nn = pinn_network(xt_points)
+    u_nn = pinn_network(xt_points_boundary)
 
     # Compute loss
     loss_fn = nn.MSELoss()
 
-    loss_boundary = loss_fn(func_Psi(xt_points), u_nn)
+    loss_boundary = loss_fn(func_Psi(xt_points_boundary), u_nn)
 
     return loss_boundary
