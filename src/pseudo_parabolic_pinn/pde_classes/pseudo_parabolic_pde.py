@@ -112,9 +112,6 @@ class PseudoParabolicPDE(TimeDependentPDE):
             pinn_network (PinnNetwork): The PINN which shall be trained
         """
 
-        # device
-        device = xt_points.device
-
         # Compute predicition of the model
         u_nn = pinn_network(xt_points)
 
