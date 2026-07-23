@@ -67,7 +67,8 @@ def pinn_training(pinn_network: PinnNetwork,
     # ----------------------------------------------------------------------------------------------------
     for epoch in range(1, adam_epochs+1):
 
-        print(epoch)
+        if epoch % 10000 == 0:
+            print(epoch)
         optimizer.zero_grad()
 
         # Generate training data
