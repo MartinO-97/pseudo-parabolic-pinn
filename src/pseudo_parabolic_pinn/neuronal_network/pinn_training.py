@@ -33,7 +33,8 @@ def pinn_training(pinn_network: PinnNetwork,
 
     # COMPUTE N
     # N is the number of points on the x and t axes
-    N = int(np.log2(pinn_training_config.batch_size)/2)
+    #N = int(np.log2(pinn_training_config.batch_size)/2)
+    N = int(np.sqrt(pinn_training_config.batch_size))
 
     # Instantiate model and optimizer 
     pinn_network = pinn_network.to(device=device)
@@ -45,16 +46,28 @@ def pinn_training(pinn_network: PinnNetwork,
                                             pinn_training_config.ed_config.gamma)
 
     # Initialize weights for segmentally pyhical loss
-    w_weights = pinn_training_config.spl_config.w_init.clone()
+    w_weights = pinn_training_config.spl_config.w_init.clone().to(device=device)
 
     # Initialize weights for losses
     lambda_ppp, lambda_init, lambda_boundary = pinn_training_config.gn_config.get_initial_lambdas
 
+    # Determine number of epochs for Adam and LBFGS
+    adam_epochs = pinn_training_config.epochs
+    lbfgs_epochs = 0
+    if pinn_training_config.use_lbfgs:
+        lbfgs_epochs = 500
+        adam_epochs = adam_epochs - lbfgs_epochs
+
     # Train the model
     pinn_network.train()
 
-    for epoch in range(1, pinn_training_config.epochs+1):
 
+    # ----------------------------------------------------------------------------------------------------
+    # ADAM PART
+    # ----------------------------------------------------------------------------------------------------
+    for epoch in range(1, adam_epochs+1):
+
+        print(epoch)
         optimizer.zero_grad()
 
         # Generate training data
@@ -80,7 +93,8 @@ def pinn_training(pinn_network: PinnNetwork,
             lambda_ppp, lambda_init, lambda_boundary = update_loss_weights(loss_pde, loss_init, loss_boundary, 
                                                                            pinn_training_config.gn_config.grad_norm_alpha, 
                                                                            lambda_ppp, lambda_init, lambda_boundary, 
-                                                                           optimizer, pinn_network)
+                                                                           optimizer, pinn_network, 
+                                                                           pinn_training_config.gn_config.normalize_weights)
 
         # Backward propagation
         optimizer.zero_grad()
@@ -88,3 +102,57 @@ def pinn_training(pinn_network: PinnNetwork,
         optimizer.step()
         if pinn_training_config.ed_config.use_ed:
             scheduler.step()
+
+    # ----------------------------------------------------------------------------------------------------
+    # LBFGS PART
+    # ----------------------------------------------------------------------------------------------------
+    if pinn_training_config.use_lbfgs:
+
+        # Generate training data
+        spatial_interval = pde_problem.spatial_interval
+        T = pde_problem.final_time
+        xt_points_ppp, xt_points_init, xt_points_boundary = \
+            generation_of_random_training_data(N, spatial_interval[0], spatial_interval[1], T, device)
+
+        w_weights_fixed = w_weights.clone()
+
+        optimizer = torch.optim.LBFGS(pinn_network.parameters())
+
+        for epoch in range(1, lbfgs_epochs+1):
+            print(epoch)
+
+            # Save history once per epoch
+            optimizer.zero_grad()
+            loss_pde, _ = pde_loss(pinn_network, pde_problem, xt_points_ppp, 
+                                    pinn_training_config.spl_config.number_of_segements,
+                                    w_weights_fixed, pinn_training_config.spl_config.spl_eps)
+            loss_init = intial_loss(pde_problem.func_u0, xt_points_init, pinn_network)
+            loss_boundary = boundary_loss(pde_problem.func_Psi, xt_points_boundary, pinn_network)
+            loss_complete = lambda_ppp * loss_pde + lambda_init * loss_init + lambda_boundary * loss_boundary
+            
+            training_history_data.update_loss_lists(
+                loss_complete.item(), loss_pde.item(), loss_init.item(), loss_boundary.item())
+
+            # Closure function for LBFGS
+            def closure() -> torch.Tensor:
+    
+                optimizer.zero_grad()
+
+                if not xt_points_ppp.requires_grad:
+                    xt_points_ppp.requires_grad_(True)
+
+                # Compute loss
+                loss_pde, _ = pde_loss(pinn_network, pde_problem, xt_points_ppp, 
+                                                pinn_training_config.spl_config.number_of_segements,
+                                                w_weights_fixed, 
+                                                pinn_training_config.spl_config.spl_eps)
+                loss_init = intial_loss(pde_problem.func_u0, xt_points_init, pinn_network)
+                loss_boundary = boundary_loss(pde_problem.func_Psi, xt_points_boundary, pinn_network)
+                loss_complete = lambda_ppp * loss_pde + lambda_init * loss_init + lambda_boundary * loss_boundary
+
+                loss_complete.backward()
+
+                return loss_complete
+
+            optimizer.step(closure=closure)
+    

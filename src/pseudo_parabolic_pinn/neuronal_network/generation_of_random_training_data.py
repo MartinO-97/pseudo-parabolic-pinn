@@ -37,6 +37,7 @@ def generation_of_random_training_data(N: int,
     t_points = (1-t_points)*T
 
     xt_points_ppp = torch.cat((x_points, t_points), dim=1).to(device=device)
+    xt_points_ppp = xt_points_ppp.requires_grad_(True)
 
     # Generate training data for the initial condition
     # We ensure that the boundary values of \Omega are in the training data

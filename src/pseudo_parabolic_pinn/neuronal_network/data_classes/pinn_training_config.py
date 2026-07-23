@@ -16,6 +16,8 @@ class PinnTrainingConfig():
         learn_rate (float): The learn rate for gradient descent.
             Defaults to ``0.001``.
         device (str): Device where tensors and the network shall be stored.
+        use_lbfgs (bool): If ``True`` the LBFGS algorithm is used to train the 
+            model in the lasst 5000 epochs. 
         ed_config (ExponentialDecayConfig): Config data for 
             exponential decay.
         gn_config (GradNormConfig): Config data for grad norm
@@ -31,6 +33,7 @@ class PinnTrainingConfig():
     batch_size: int = 4096
     learn_rate: float = 0.001
     device: str = "cpu"
+    use_lbfgs: bool = False
 
     ed_config: ExponentialDecayConfig = field(default_factory=ExponentialDecayConfig)
     gn_config: GradNormConfig = field(default_factory=GradNormConfig)
