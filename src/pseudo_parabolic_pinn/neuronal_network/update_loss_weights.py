@@ -10,7 +10,8 @@ def update_loss_weights(loss_ppp: torch.Tensor,
                         lambda_init: float,
                         lambda_boundary: float,
                         optimizer: torch.optim.Optimizer,
-                        pinn_network: PinnNetwork) -> tuple[float, float, float]:
+                        pinn_network: PinnNetwork,
+                        normalize_weights: bool) -> tuple[float, float, float]:
 
     r""" Update of the loss function weights.
     
@@ -28,6 +29,7 @@ def update_loss_weights(loss_ppp: torch.Tensor,
         lambda_ppp (float): Current weight \lambda_{ppp}
         lambda_init (float): Current weight \lambda_{init}
         lambda_boundary (float): Current weight \lambda_{boundary}
+        normalize_weights (bool): If ``True`` the sum of the weights is normalized to ``3``.
 
     Returns:
         tuple[float, float, float]: Tuple consisting of:
@@ -61,13 +63,20 @@ def update_loss_weights(loss_ppp: torch.Tensor,
     sum_norms = grad_norm_ppp + grad_norm_init + grad_norm_boundary
 
     # COMPUTE AUXILIARY WEIGHTS
-    aux_lambda_ppp = sum_norms / grad_norm_ppp
-    aux_lambda_init = sum_norms / grad_norm_init
-    aux_lambda_boundary = sum_norms / grad_norm_boundary
+    aux_lambda_ppp = sum_norms / (grad_norm_ppp + 10**(-10)) 
+    aux_lambda_init = sum_norms / (grad_norm_init + 10**(-10))
+    aux_lambda_boundary = sum_norms / (grad_norm_boundary + 10**(-10))
 
     # UPDATE WEIGHTS
     lambda_ppp = alpha * lambda_ppp + (1-alpha) * aux_lambda_ppp
     lambda_init = alpha * lambda_init + (1-alpha) * aux_lambda_init
     lambda_boundary = alpha * lambda_boundary + (1-alpha) * aux_lambda_boundary
+
+    if normalize_weights:
+        sum_lambdas = lambda_ppp + lambda_init + lambda_boundary
+        lambda_ppp *= 3/sum_lambdas
+        lambda_init *= 3/sum_lambdas
+        lambda_boundary *= 3/sum_lambdas
+        
     
     return lambda_ppp, lambda_init, lambda_boundary
