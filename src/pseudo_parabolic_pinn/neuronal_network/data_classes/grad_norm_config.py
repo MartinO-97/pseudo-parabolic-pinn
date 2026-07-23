@@ -26,6 +26,7 @@ class GradNormConfig():
     lambda_init_init: float = 1.0
     lambda_boundary_init: float = 1.0
     grad_norm_step_size: int = 1000
+    normalize_weights: bool = False
 
     @property
     def get_initial_lambdas(self) -> tuple[float, 
