@@ -120,7 +120,6 @@ def pinn_training(pinn_network: PinnNetwork,
         optimizer = torch.optim.LBFGS(pinn_network.parameters())
 
         for epoch in range(1, lbfgs_epochs+1):
-            print(epoch)
 
             # Save history once per epoch
             optimizer.zero_grad()
