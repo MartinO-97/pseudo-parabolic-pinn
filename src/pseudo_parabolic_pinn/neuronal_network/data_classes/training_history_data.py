@@ -1,6 +1,7 @@
-from dataclasses import dataclass, field
 import matplotlib.pyplot as plt
+import numpy as np
 
+from dataclasses import dataclass, field
 from matplotlib.figure import Figure
 
 @dataclass
@@ -90,31 +91,60 @@ class TrainingHistoryData():
 
         return self.complete_loss, self.pde_loss, self.init_loss, self.boundary_loss
 
-    def present_loss_graphs(self) -> Figure:
+    def present_loss_graphs(self, 
+                            steps:int = 1) -> Figure:
 
         r""" Based on the stored losses graphs are generated that
         illustrate the losses curves
         
+        Args:
+            step (int, optional): Downsampling interval for plotting. For example, 
+                `step=100` plots every 100th epoch. Defaults to 1.
+
         Returns:
             Figure: Figure that iluustrates the loss curves.
         
         """
-        
-        # Determine number of epochs
-        epochs = len(self.complete_loss)
 
+        def partition_loss_lists(loss_lists: list[float]) -> list[float]:
+
+            # Number of chunks
+            number_chunks = len(loss_lists) // steps
+            chunks = [loss_lists[i*steps: (i+1)*steps] for i in range(0,number_chunks)]
+            if len(loss_lists) % steps !=0 :
+                chunks.append(loss_lists[number_chunks*steps:])
+
+            mean_chunks = [np.mean(chunks[i], dtype=float) for i in range(len(chunks))]
+
+            return mean_chunks
+            
+
+        # Determine number chunks
+        complete_chunks = partition_loss_lists(self.complete_loss)
+        pde_chunks = partition_loss_lists(self.pde_loss)
+        init_chunks = partition_loss_lists(self.init_loss)
+        boundary_chunks = partition_loss_lists(self.boundary_loss)
+
+        # Compute numbe of chunks
+        number_chunks = len(complete_chunks)
+        
         # Create figure
         fig, ax = plt.subplots()
 
-        ax.plot([i for i in range(1,epochs+1)], self.complete_loss, label="complete")
-        ax.plot([i for i in range(1,epochs+1)], self.pde_loss, label="pde")
-        ax.plot([i for i in range(1,epochs+1)], self.boundary_loss, label="boundary")
-        ax.plot([i for i in range(1,epochs+1)], self.init_loss, label="initial")
+        ax.plot([i*steps for i in range(1,number_chunks+1)], complete_chunks, label="complete")
+        ax.plot([i*steps for i in range(1,number_chunks+1)], pde_chunks, label="pde")
+        ax.plot([i*steps for i in range(1,number_chunks+1)], init_chunks, label="initial")
+        ax.plot([i*steps for i in range(1,number_chunks+1)], boundary_chunks, label="boundary")
 
         ax.grid(visible=True, which="both")
         ax.legend(loc="best")
         ax.set_facecolor("lightgrey")
-        #ax.set_xscale("log")
+
+        if steps % 10 == 0: 
+            ax.set_xscale("log")
+
         ax.set_yscale("log")
+        ax.set_xlabel("Number of chunks")
+        ax.set_ylabel("Mean Loss")
 
         return fig

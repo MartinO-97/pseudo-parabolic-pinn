@@ -85,7 +85,7 @@ def main() -> None:
     # PINN TRAINING PROCESS WITH DIFFERENT SETUPS
     # ----------------------------------------------------------------------------------------------------
     # NUMBER OF EPOCHS FOR ALL TESTS
-    epochs = 200000
+    epochs = 100000
 
     # PINN MODEL WITHOUT ANY MODIFICATIONS
     print("PINN RARE")
@@ -112,6 +112,10 @@ def main() -> None:
         file.write(f"H^1-norm error: {error_h1:.3e} \n")
         file.write("\n")
     print("")
+
+    fig = training_history.present_loss_graphs(1000)
+    fig.savefig(results_dir + "/test.png", dpi=300, format="png")
+    quit()
 
     # PINN WITH MODIFICATIONS BUT WITHOUT LBFGS
     print("PINN WITHOUT LBFGS")
