@@ -85,7 +85,7 @@ def main() -> None:
     # PINN TRAINING PROCESS WITH DIFFERENT SETUPS
     # ----------------------------------------------------------------------------------------------------
     # NUMBER OF EPOCHS FOR ALL TESTS
-    epochs = 100000
+    epochs = 10000
 
     # PINN MODEL WITHOUT ANY MODIFICATIONS
     print("PINN RARE")
@@ -113,7 +113,7 @@ def main() -> None:
         file.write("\n")
     print("")
 
-    fig = training_history.present_loss_graphs(1000)
+    fig = training_history.present_loss_graphs(200)
     fig.savefig(results_dir + "/test.png", dpi=300, format="png")
     quit()
 

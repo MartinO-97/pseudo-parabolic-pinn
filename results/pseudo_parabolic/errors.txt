@@ -1,5 +1,5 @@
 PINN WITHOUT MODIFICATIONS:
-Maximum norm error: 2.838e-02 
-L^2-norm error: 2.837e-02 
-H^1-norm error: 1.203e-01 
+Maximum norm error: 3.177e-02 
+L^2-norm error: 2.558e-02 
+H^1-norm error: 4.653e-02 
 
