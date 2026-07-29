@@ -85,7 +85,10 @@ def main() -> None:
     # PINN TRAINING PROCESS WITH DIFFERENT SETUPS
     # ----------------------------------------------------------------------------------------------------
     # NUMBER OF EPOCHS FOR ALL TESTS
-    epochs = 10000
+    epochs = 200000
+
+    # NUMBER OF CHUNKS FOR THE LOSS GRAPHS PRESENTATION
+    chunks = 200
 
     # PINN MODEL WITHOUT ANY MODIFICATIONS
     print("PINN RARE")
@@ -113,9 +116,9 @@ def main() -> None:
         file.write("\n")
     print("")
 
-    fig = training_history.present_loss_graphs(200)
-    fig.savefig(results_dir + "/test.png", dpi=300, format="png")
-    quit()
+    fig_loss_without = training_history.present_loss_graphs(chunks)
+    fig_loss_without.savefig(results_dir + "/loss_without.eps", dpi=300, format="eps")
+    fig_loss_without.savefig(results_dir + "/loss_without.png", dpi=300, format="png")
 
     # PINN WITH MODIFICATIONS BUT WITHOUT LBFGS
     print("PINN WITHOUT LBFGS")
@@ -145,6 +148,10 @@ def main() -> None:
         file.write("\n")
     print("")
 
+    fig_loss_with = training_history.present_loss_graphs(chunks)
+    fig_loss_with.savefig(results_dir + "/loss_with.eps", dpi=300, format="eps")
+    fig_loss_with.savefig(results_dir + "/loss_with.png", dpi=300, format="png")
+
     # PINN WITH MODIFICATIONS AND LBFGS
     print("PINN WITH LBFGS")
     file = open(file_error_results, "a")
@@ -172,6 +179,11 @@ def main() -> None:
         file.write(f"L^2-norm error: {error_l2:.3e} \n")
         file.write(f"H^1-norm error: {error_h1:.3e} \n")
 
+    fig_loss_lbfgs = training_history.present_loss_graphs(chunks)
+    fig_loss_lbfgs.savefig(results_dir + "/loss_lbfgs.eps", dpi=300, format="eps")
+    fig_loss_lbfgs.savefig(results_dir + "/loss_lbfgs.png", dpi=300, format="png")
+
+    # GENERATE PICTURES OF THE SOLUTIONS
     fig_exact, fig_nn, fig_error = pinn_evaluator.create_graphical_illustration()
     fig_exact.savefig(results_dir + "/exact_sol.eps", dpi=300, format="eps")
     fig_nn.savefig(results_dir + "/nn_sol.eps", dpi=300, format="eps")
@@ -180,6 +192,9 @@ def main() -> None:
     fig_exact.savefig(results_dir + "/exact_sol.png", dpi=300, format="png")
     fig_nn.savefig(results_dir + "/nn_sol.png", dpi=300, format="png")
     fig_error.savefig(results_dir + "/error_sol_nn.png", dpi=300, format="png")
+
+    # Generate loss graphs
+
 
 if __name__ == "__main__":
 
