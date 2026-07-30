@@ -2,7 +2,8 @@
   	"name": "PyTorch PINN for Pseudo Parabolic Equations",
 	"build": {
 		"dockerfile": "../Dockerfile",
-		"context": ".."
+		"context": "..",
+		"options": ["-t=pseudo-parabolic-pinn"]
 	},
 	"remoteUser": "teli",
 	"runArgs": ["--gpus", "all"],
