@@ -1,1 +1,0 @@
-from .homogeneous_dirichlet_smooth import get_data_homogeneous_dirchlet_smooth_example

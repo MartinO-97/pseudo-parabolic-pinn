@@ -3,7 +3,7 @@
 	"build": {
 		"dockerfile": "../Dockerfile",
 		"context": "..",
-		"options": ["-t=pseudo-parabolic-pinn"]
+		"options": ["-t=pseudo-parabolic-pinn:latest"]
 	},
 	"remoteUser": "teli",
 	"runArgs": ["--gpus", "all"],
