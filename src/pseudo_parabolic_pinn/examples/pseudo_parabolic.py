@@ -1,9 +1,7 @@
 import torch
-import matplotlib.pyplot as plt
 import os
 
 from torch import pi, sin, cos, exp
-from ..functions import get_data_homogeneous_dirchlet_smooth_example as get_data
 from ..neuronal_network import (ExponentialDecayConfig, GradNormConfig, PinnTrainingConfig,
                                 RandomFourierFeatureEmbeddingsConfig, RandomWeightFactorizationConfig,
                                 SegmentalPDELossConfig, TrainingHistoryData, PinnNetwork,
@@ -22,9 +20,8 @@ def main() -> None:
     u(x,t) = 0 for (x,t) \partial \Omega \times [0,T].
     
     We provide an example where the exact solution is known. Furthermore, we analyze the
-    maximum norm error
-
-    max_err = || u - u_{nn}||_{L^\infty(0,T; L^\infty(\Omega))}.
+    C^([0,T]; C(\overline{\Omega})), C^([0,T]; L^2(\Omega)) and
+    C^([0,T]; H^1(\Omega)) errors.
 
     To train the model we choose (N+1)^2 points randomly in the space-time domain.
     """
