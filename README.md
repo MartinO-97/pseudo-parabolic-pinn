@@ -16,7 +16,7 @@ find a function $u:[0,T] \to \mathbb{R}$ that satisfies
 
 ```math
 \begin{align*}
--u_{xxt} + au_t - u_{xx} + cu &= F \quad &&\text{on } \mathbb{Q} \coloneqq (a,b) \times (0,T] \\
+-u_{xxt} + au_t - u_{xx} + cu &= F \quad &&\text{on } \mathbb{Q} \coloneqq (\alpha,\beta) \times (0,T] \\
 u(x,0) &= u_0(x) \quad &&\text{on } \overline{\Omega} \\
 u(x,t) &= 0 \quad &&\text{for } (x,t) \in \{\alpha, \beta\} \times [0,T], 
 \end{align*}
@@ -150,7 +150,7 @@ The source function $F$ is defined such that $u(x,t) = \mathrm{e}^t \sin(x\pi)$ 
 
 Exact solution             |  Model prediction
 :-------------------------:|:-------------------------:
-![](results/pseudo_parabolic/exact_sol.png)  |  ![](results/pseudo_parabolic/nn_sol.png)
+![](pseudo_parabolic/docs.png)  |  ![](pseudo_parabolic/docs.png)
 
 Three experiments were conducted. In the first one, a general PINN network without modifications specified in the `Features` section is trained. The second experiment employs all training strategies described 
 in the `Features` section while using only the Adam optimize. In the last one, the modifications and two-step optimization using Adam and
@@ -173,7 +173,7 @@ ver 200 consecutive training epochs.
 
 Without modifications            | With modifications but only Adam
 :-------------------------:|:-------------------------:
-![](results/pseudo_parabolic/loss_without.png)  |  ![](results/pseudo_parabolic/loss_with.png)
+![](docs/loss_without.png)  |  ![](docs/loss_with.png)
 
 The curves are associated with the following losses, cf. [1]:
 - blue -> Complete loss
@@ -181,23 +181,28 @@ The curves are associated with the following losses, cf. [1]:
 - green -> Initial loss
 - red -> Boundary loss
 
-Note that in the second figure the complete loss is smaller than the PDE loss. As outlined in [1], the complete loss is computed by
+Note that in the second figure the total loss is smaller than the PDE loss. As described in [1], the total loss is computed as
 
 ```math
 \begin{gather*}
-\mathrm{loss}_\mathrm{complete} = \lambda_\mathrm{pde} \mathrm{loss}_\mathrm{pde} + \lambda_\mathrm{initial} \mathrm{loss}_\mathrm{initial} + \lambda_\mathrm{boundary} \mathrm{loss}_\mathrm{boundary},
+\mathrm{loss}_\mathrm{total} = \lambda_\mathrm{pde} \mathrm{loss}_\mathrm{pde} + \lambda_\mathrm{initial} \mathrm{loss}_\mathrm{initial} + \lambda_\mathrm{boundary} \mathrm{loss}_\mathrm{boundary},
 \end{gather*}
 ```
 
-where $\lambda_\mathrm{pde}, \lambda_\mathrm{initial} \text{ and } \lambda_\mathrm{boundary}$. Hence, $\mathrm{loss}_\mathrm{complete} < \mathrm{loss}_\mathrm{pde}$ indicates that $\lambda_\mathrm{pde} << 1$.
-Furthermore, we infer that small loss does not yield a small error. In the second figure, the final average loss are smaller than $10**(-5)$. However, the error measured in different norms is larger than
-$10**(-4)$. 
+where $\lambda_\mathrm{pde}, \lambda_\mathrm{initial} \text{ and } \lambda_\mathrm{boundary}$ describe non-negative, adaptive loss weights. Hence, $\mathrm{loss}_\mathrm{complete} < \mathrm{loss}_\mathrm{pde}$ indicates that $\lambda_\mathrm{pde} \ll 1$.
+Furthermore, the experiments illustrate that a small training loss does not imply a small approximation error. In the second experiment, the final averaged total loss is below $10^(-5)$. However, the approximation error measured in different norms is larger than
+$10^(-4)$. 
 
 ## Literature
-[1] Sifan Wang, Shyam Sankaran, Hanwen Wang, Paris Perdikaris,
-    An Expert's Guide to Training Physics-Informed Neuronal Networks, 
-    2023, https://arxiv.org/abs/2308.08468
+[1] Wang, S., Sankaran, S., Wang, H., and Perdikaris, P.
+    An Expert's Guide to Training Physics-Informed Neural Networks.
+    arXiv:2308.08468, 2023.
 
-[2] 
+[2] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
+    Physics-informed neural networks: A deep learning framework for solving
+    forward and inverse problems involving nonlinear partial differential equations.
+    Journal of Computational Physics, 378:686–707, 2019.
 
-[3] 
+[3] Ossadnik, M. and Linß, T.
+    A posteriori error bounds for pseudo-parabolic equations using $C_0$ semigroups
+    arXiv:2606.20073, 2026

@@ -223,3 +223,4 @@ own_test.py
 # png and jpg files
 *.png
 *.jpg
+!docs/*.png
