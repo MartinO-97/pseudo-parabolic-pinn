@@ -22,8 +22,8 @@ u(x,t) &= 0 \quad &&\text{for } (x,t) \in \{\alpha, \beta\} \times [0,T],
 \end{align*}
 ```
 
-where $u_t$ and $u_x$ denote the parital derivatives with respect to the time
-variable $t$ and the space variable $x$, respetively. We assume that $a \geq 0$ on 
+where $u_t$ denotes the parital derivatives with respect to the time
+variable $t$. Similarly, $u_{xx}$ denotes the second derivative of $u$ with respect to the space variable $x$. We assume that $a \geq 0$ on 
 $\overline{\Omega}$ and $u_0 \in C^1([\alpha, \beta])$. Under these assumptions, 
 our pseudo-parabolic equation possesses a unique solution $u$, cf. [3].
 
@@ -195,8 +195,7 @@ where $\lambda_\mathrm{pde}, \lambda_\mathrm{initial} \text{ and } \lambda_\math
 \mathrm{loss}_{\mathrm{complete}}<\mathrm{loss}_{\mathrm{pde}}
 \end{gather*}
 ``` 
-indicates that $\lambda_\mathrm{pde} \ll 1$. Furthermore, the experiments illustrate that a small training loss does not imply a small approximation error. In the second experiment, the final averaged complete loss is below $10^{-5}$. However, the approximation error measured in different norms is larger than
-$10^{-4}$. 
+indicates that $\lambda_\mathrm{pde} \ll 1$. Furthermore, the experiments illustrate that a small training loss does not imply a small approximation error. In the second experiment, the final averaged complete loss is below $10^{-5}$. However, the approximation error measured in different norms is larger than $10^{-4}$. 
 
 ## Literature
 [1] Wang, S., Sankaran, S., Wang, H., and Perdikaris, P.
