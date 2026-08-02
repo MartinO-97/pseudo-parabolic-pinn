@@ -181,16 +181,17 @@ The curves are associated with the following losses, cf. [1]:
 - green -> Initial loss
 - red -> Boundary loss
 
-Note that in the second figure the total loss is smaller than the PDE loss. As described in [1], the total loss is computed as
+Note that in the second figure the complete loss is smaller than the PDE loss. As described in [1], the complete loss is computed as
 
 ```math
 \begin{gather*}
-\mathrm{loss}_\mathrm{total} = \lambda_\mathrm{pde} \mathrm{loss}_\mathrm{pde} + \lambda_\mathrm{initial} \mathrm{loss}_\mathrm{initial} + \lambda_\mathrm{boundary} \mathrm{loss}_\mathrm{boundary},
+\mathrm{loss}_\mathrm{complete} = \lambda_\mathrm{pde} \mathrm{loss}_\mathrm{pde} + \lambda_\mathrm{initial} \mathrm{loss}_\mathrm{initial} + \lambda_\mathrm{boundary} \mathrm{loss}_\mathrm{boundary},
 \end{gather*}
 ```
 
-where $\lambda_\mathrm{pde}, \lambda_\mathrm{initial} \text{ and } \lambda_\mathrm{boundary}$ describe non-negative, adaptive loss weights. Hence, $\mathrm{loss}_\mathrm{total}<\mathrm{loss}_\mathrm{pde}$ indicates that $\lambda_\mathrm{pde} \ll 1$.
-Furthermore, the experiments illustrate that a small training loss does not imply a small approximation error. In the second experiment, the final averaged total loss is below $10^{-5}$. However, the approximation error measured in different norms is larger than
+where $\lambda_\mathrm{pde}, \lambda_\mathrm{initial} \text{ and } \lambda_\mathrm{boundary}$ describe non-negative, adaptive loss weights. Hence, <br /> 
+$\mathrm{loss}_\mathrm{complete}<\mathrm{loss}_\mathrm{pde}$ indicates that $\lambda_\mathrm{pde} \ll 1$.
+Furthermore, the experiments illustrate that a small training loss does not imply a small approximation error. In the second experiment, the final averaged complete loss is below $10^{-5}$. However, the approximation error measured in different norms is larger than
 $10^{-4}$. 
 
 ## Literature
