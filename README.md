@@ -150,7 +150,7 @@ The source function $F$ is defined such that $u(x,t) = \mathrm{e}^t \sin(x\pi)$ 
 
 Exact solution             |  Model prediction
 :-------------------------:|:-------------------------:
-![](pseudo_parabolic/docs.png)  |  ![](pseudo_parabolic/docs.png)
+![](docs/exact_sol.png)  |  ![](docs/nn_sol.png)
 
 Three experiments were conducted. In the first one, a general PINN network without modifications specified in the `Features` section is trained. The second experiment employs all training strategies described 
 in the `Features` section while using only the Adam optimize. In the last one, the modifications and two-step optimization using Adam and
