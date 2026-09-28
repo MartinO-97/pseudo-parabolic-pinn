@@ -201,6 +201,11 @@ where $\lambda_\mathrm{pde}, \lambda_\mathrm{initial} \text{ and } \lambda_\math
 ``` 
 implies that $\lambda_\mathrm{pde} < 1$. Note that a small training loss does not by itself guarantee a small approximation error, since the loss only measures squared residuals at the sampled training points. Therefore, the errors are evaluated separately in the maximum, $L^2$ and $H^1$ norms. 
 
+## Acknowledgments
+This project was developed with the assistance of Claude (Anthropic), an AI assistant, 
+which helped with coding, writing the documentation, and reviewing. The research question, 
+the experiment design, the mathematical analysis, and all final decisions are my own.
+
 ## Literature
 [1] Wang, S., Sankaran, S., Wang, H., and Perdikaris, P.
     An Expert's Guide to Training Physics-Informed Neural Networks.
