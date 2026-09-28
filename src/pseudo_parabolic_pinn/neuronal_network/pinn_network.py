@@ -6,7 +6,7 @@ from .data_classes import PinnTrainingConfig
 
 class PinnNetwork(nn.Module):
 
-    """ A Phsysical-Informed Neuronal Network (PINN) to compute an approximate solution 
+    """ A Physics-Informed Neural Network (PINN) to compute an approximate solution 
     for a pseudo-parabolic equation in one spatial dimension. 
     
     The network is a fully connected architecture and uses the Tanh activation function.

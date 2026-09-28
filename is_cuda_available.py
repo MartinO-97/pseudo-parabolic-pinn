@@ -1,6 +1,6 @@
-r""" Little script to verify that cuda is available. Just run it via
+r""" Little script to verify that CUDA is available. Just run it via
 
-python3 ic_cuda_available().py
+python3 is_cuda_available.py
 
 """
 import torch
